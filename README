@@ -1,0 +1,10 @@
+Исходный код сайта.
+
+Необходим Ruby, Sinatra (http://www.sinatrarb.com/)
+
+Для запуска: ruby app/site.rb
+
+
+TODO:
+
+- На данный момент перевод на русский двух статей (views/articles)

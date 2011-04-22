@@ -17,7 +17,7 @@
       </div>
       <div class="menu_nav">
         <ul>
-        <!--  class="active" --!>
+        <!--  class="active" -->
           <li><a href="/"><span><span>Главная</span></span></a></li>
           <li><a title="русскоязычная группа" href="http://groups.google.com/group/vmware-paas-ru"><span><span>Общение</span></span></a></li>
           
@@ -43,43 +43,10 @@
     </div>
   </div>
   <div class="fbg">
-<!--
-    <div class="fbg_resize">
-      <div class="col c1">
-        <h2><span>About</span></h2>
-        <img src="images/white.jpg" width="56" height="56" alt="" />
-        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec libero. Suspendisse bibendum. Cras id urna. Morbi tincidunt, orci ac convallis aliquam, lectus turpis varius lorem, eu posuere nunc justo tempus leo. llorem, eu posuere nunc justo tempus leo. Donec mattis, purus nec placerat bibendum. <a href="#">Learn more...</a></p>
-      </div>
-      <div class="col c2">
-        <h2><span>Lorem Ipsum</span></h2>
-        <ul class="sb_menu">
-          <li><a href="#">consequat molestie</a></li>
-          <li><a href="#">sem justo</a></li>
-          <li><a href="#">semper</a></li>
-          <li><a href="#">magna sed purus</a></li>
-          <li><a href="#">tincidunt</a></li>
-        </ul>
-      </div>
-      <div class="col c3">
-        <h2>Contact</h2>
-        <p>Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue.</p>
-        <p><a href="#">support@yoursite.com</a></p>
-        <p>+1 (123) 444-5677<br />
-          +1 (123) 444-5678</p>
-        <p>Address: 123 TemplateAccess Rd1</p>
-      </div>
-      <div class="clr"></div>
-    </div>
--->
+    <%= erb :'_subinfo', :layout=>false %>
   </div>
   <div class="footer">
-    <div class="footer_resize">
-      <p class="lf">&copy; 2011, vmware-paas-ru, <a href="https://github.com/nemilya/vmware-paas-ru">github</a>, электропочта nemilya at gmail dot com.</p>
-      <p class="rf">
-        Layout by Rocket <a href="http://www.rocketwebsitetemplates.com/">Website Templates</a> | powered by <a href="http://www.sinatrarb.com/">Sinatra</a>
-      </p>
-      <div class="clr"></div>
-    </div>
+    <%= erb :'_footer', :layout=>false %>
   </div>
 </div>
 
