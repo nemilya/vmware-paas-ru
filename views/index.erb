@@ -1,0 +1,16 @@
+<%= erb :'_intro', :layout=>false %>
+
+<% @articles.each do |article| %>
+
+<div class="article">
+  <h2><a class="link_article" href="<%= article[:url] %>"><%= article[:title] %></a></h2>
+  <div class="clr"></div>
+  <p>Автор <a href="<%= article[:author_url] %>"><%= article[:author_name] %></a> 
+  &nbsp;|&nbsp; оригинал <a href="<%= article[:org_url] %>"><%= article[:org_title] %></a></p>
+  <p>
+    <%= article[:intro_text] %>
+  </p>
+  <p class="spec"><a href="<%= article[:url] %>" class="rm">Читать дальше</a> &nbsp;|&nbsp; <span class="date"><%= article[:date_text] %></span></p>
+</div>
+
+<% end %>

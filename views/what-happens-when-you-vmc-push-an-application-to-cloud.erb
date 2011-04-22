@@ -1,0 +1,85 @@
+<div class="article">
+  <h2>What happens when you vmc push an application to Cloud Foundry</h2>
+
+   
+   <p>This post covers the Cloud Foundry vmc CLI interface and how it interacts with Cloud Foundry.  There will be another post covering what Cloud Foundry does on the back-end when clients (such as vmc or STS) connect to it coming soon.</p>
+<p><img alt="Targeting Cloud Foundry" src="http://media.tumblr.com/tumblr_ljvcr9PD0k1qhaq9m.png" align="left" height="400" width="500"/></p>
+<p><strong>Targeting Cloud Foundry</strong></p>
+
+<p><strong>Step 1</strong>&#160;: vmc target api.cloudfoundry.com</p>
+<p>When you first install vmc and are ready to start controlling Cloud Foundry, you will need to first select it as a target.  Why do you need to select api.cloudfoundry.com&#160;?  Because vmc is capable of connecting to any Cloud Foundry instance whether it be at cloudfoundry.com or elsewhere.  Selecting a target also allows you to use the same CLI to interface with multiple Cloud Foundry Clouds in the same way.</p>
+<p><strong>Step 2</strong>&#160;: vmc returns &#8220;Successfully targeted to [http://api.cloudfoundry.com]</p>
+<p>This indicates that vmc was able to get a valid response from api.cloudfoundry.com, meaning that it is a valid Cloud Foundry instance.</p>
+<p><em><strong>NOTE:</strong> The diagram numbers repeat each time a new command is issued through vmc</em></p>
+<p><img src="http://media.tumblr.com/tumblr_ljvdi3ZuRh1qhaq9m.png"/></p>
+
+<p><strong>Logging into Cloud Foundry</strong></p>
+<p><strong>Step 1</strong>&#160;: vmc login</p>
+<p>After typing the command, you will be prompted enter your email address and password.  Your credentials are then passed via. vmc to Cloud Foundry where they are validated.  Assuming that your credentials are validated, Cloud Foundry then issues a Security Token back to the vmc client.</p>
+<p><strong>Step 2</strong>&#160;: Successfully logged into [http://api.cloudfoundry.com]</p>
+<p>This is displayed once the vmc client has received the Security Token.  You are now able to issue commands to control your instances on Cloud Foundry through vmc.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvfi3Edfq1qhaq9m.png"/></p>
+<p>Using vmc push to Deploy an Application</p>
+<p><strong>Step 1</strong>&#160;: vmc push</p>
+
+<p>The follow on steps go into the details of the Dialog displayed above.  Going through what each step is and what it does.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvfmfd9Jc1qhaq9m.png"/></p>
+<p><strong>Step 2</strong>&#160;: This allows you to select an alternative location for your application. When using vmc push you can add <em>&#8212;path /some/location</em> this allows you to stay in a different directory context than the application that you are deploying.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvft8zpll1qhaq9m.png"/></p>
+<p><strong>Step 3</strong>&#160;: Naming your application gives you the ability to use a simpler friendly name when referencing it inside of vmc.  This name can (but doesn&#8217;t have to) be disconnected from the Deployed URL where users will access your application.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvfwtBMSH1qhaq9m.png"/></p>
+<p><strong>Step 4</strong>&#160;: Application Deployed URL is where users will access your application the internet or outside of your Cloud Foundry instance.</p>
+
+<p><img src="http://media.tumblr.com/tumblr_ljvg0spImA1qhaq9m.png"/></p>
+<p><strong>Step 5</strong>&#160;: Detecting or Selecting Application Types</p>
+<p>vmc attempts to detect the framework that is in use, which allows it do decide what the correct run-time environment that is needed will be.  If you are doing something where you want your code treated a specific way or if vmc cannot detect the framework being used, you can manually select the framework and this will cause your code to be treated as code for both this framework and the associated run-time of that framework.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvg7sZ5Nt1qhaq9m.png"/></p>
+<p><strong>Step 6</strong>&#160;: The Memory Reservation is used to allow you to determine how much memory your application will need.  The Memory Reservation is part of the manifest which will be described later and it is also used to ensure that you are staying within your quota limits of the system.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvgbpHFMQ1qhaq9m.png"/></p>
+<p><strong>Step 7</strong>&#160;: vmc has Created the Application LOCALLY, this means that all of the application metadata has been created and saved.  Application Metadata makes up the manifest and includes&#160;:</p>
+<ul><li>Application Name</li>
+
+<li>URL</li>
+<li>Framework</li>
+<li>Run-time</li>
+<li>Instances Needed</li>
+<li>Memory Reservation</li>
+</ul><p>It is important to realize that no bits have been sent to Cloud Foundry yet.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvgltsrth1qhaq9m.png"/></p>
+<p><strong>Step 8</strong>&#160;: Binding Services to your Application offers the ability to add capabilities such as <a href="http://www.redis.io/" target="_blank">Redis</a> (a Key/Value Store), <a href="http://www.mysql.com/" target="_blank">MySQL</a> (a Relational Database), along with other services such as messaging.</p>
+
+<p><img src="http://media.tumblr.com/tumblr_ljvgq1dInG1qhaq9m.png"/></p>
+<p><strong>Step 9</strong>&#160;: Because your application is being run remotely (not on your local OS) it has to be preprocessed before it is sent to Cloud Foundry.  The next few steps will walk through the sophisticated process by which vmc and Cloud Foundry work together to find the most efficient way to upload your code.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvgwxilCP1qhaq9m.png"/></p>
+<p><strong>Step 10</strong>&#160;: Checking for available resources is examining the metadata and manifest to decide what it needs to send.  The process that vmc follows to decide what it should send to Cloud Foundry follows a multi-stage process, which is described in the next few diagrams.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvhd1QsT01qhaq9m.png"/></p>
+<p><strong>Step 10a</strong>&#160;: The Metadata is examined (what resources the application needs, what runtime and framework it is supposed to use, etc.)</p>
+<p><strong>Step 10b</strong>&#160;: Look at Components (Decide what gems, libraries, npms, etc. are used in preparation for the next step.</p>
+<p><strong>Step 10c</strong>&#160;: File based Fingerprinting (This is where a Manifest of files is built along with a <a href="http://en.wikipedia.org/wiki/SHA-1" target="_blank">SHA-1</a> hash associated with that file). </p>
+
+<p><strong>Step 10d</strong>&#160;: The manifest is then sent to Cloud Foundry.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvhedMo0D1qhaq9m.png"/></p>
+<p><strong>Step 11</strong>&#160;: The Application has been successfully packaged, what is packaging? See the next diagram for details (and what happened with the manifest sent in Step 10)</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvhuh3nnm1qhaq9m.png"/></p>
+<p><strong>Step 11a</strong>&#160;: When packing begins, a manifest is sent from Cloud Foundry to vmc.  This manifest lists only the files that Cloud Foundry needs, not all of the files that make up the application.  This method of only requesting and sending what is needed makes uploading far more efficient than if all code/application files were sent with each push.</p>
+<p><strong>Step 11b</strong>&#160;: vmc copies the necessary files (only those that Cloud Foundry needs) and compresses them</p>
+<p><strong>Step 11c</strong>&#160;: The vmc manifest is prepared along with the compressed file containing all of the code needed by Cloud Foundry.</p>
+
+<p><strong>Step 11d</strong>&#160;: The file is ready to be uploaded to Cloud Foundry.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvi9dbkar1qhaq9m.png"/></p>
+<p><strong>Step 12</strong>&#160;: vmc Uploads the application (just the manifest and compressed file) to Cloud Foundry.  In the above case you could see 0K uploaded if you are deploying an application that someone else has deployed previously.  This is because Cloud Foundry doesn&#8217;t just look at files that you have sent it, but all files that it has seen previously.  By looking at all previous files, the upload efficiency can be increased because there are more likely to be files that Cloud Foundry has seen before.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvifgi5Ta1qhaq9m.png"/></p>
+<p><strong>Step 13</strong>&#160;: When Push Status returns OK, the application has been received by Cloud Foundry and can now be used for Staging.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljviifMMIZ1qhaq9m.png"/></p>
+<p><strong>Step 14</strong>&#160;: Staging Application does not return okay until Cloud Foundry has successfully allocated the resources and environment for your application to run.</p>
+<p><img src="http://media.tumblr.com/tumblr_ljvioqIH3a1qhaq9m.png"/></p>
+
+<p><strong>Step 15</strong>&#160;: Starting Application is not required but will happen automatically unless you add &#8212;no-start to the command line when doing a vmc push.  Starting Application will not return OK until vmc receives information from Cloud Foundry that all Application instances are healthy/running.</p>
+<p>Once your application has started successfully, you can visit the Deployed URL <a href="http://hello.cloudfoundry.com" target="_blank">http://hello.cloudfoundry.com</a> in this case to use the application that was deployed.</p>
+<p>The Cloud Foundry Team has made many efforts to make resource usage and efficiency top priorities in the code and the system&#8217;s design.</p>
+<p>More posts to follow on how Cloud Foundry works.</p>
+
+<p><a href="/">на главную</a></p>
+
+
+</div>

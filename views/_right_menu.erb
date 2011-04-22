@@ -1,0 +1,9 @@
+<div class="gadget">
+  <h2 class="star"><span>Публикации</span></h2>
+  <div class="clr"></div>
+  <ul class="sb_menu">
+    <% @articles.each do |article| %>
+      <li><a href="<%= article[:url] %>"><%= article[:title] %></a></li>
+    <% end %>
+  </ul>
+</div>
