@@ -1,37 +1,442 @@
-<div class="article">
-  <h2>Архитектура Cloud Foundry</h2>
+<%= a_start %>
+<%
+@en =<<END
+<p>You are probably wondering about how Cloud Foundry 
+actually works, hopefully these details will clear things up for 
+you about how Cloud Foundry the OSS project works, why it 
+works, and how you can use it.</p>
+END
+@ru =<<END
+<p>Вам наверное интересно узнать том, каким образом Cloud Foundry 
+в действительности работает, мы надеемся, что эти детали внесут ясность 
+о том, как open-source проект Cloud Foundry работает, почему он
+работает, и как вы можете использовать его.</p>
+END
+%>
+<%= show %>
 
-<p>You are probably wondering about how Cloud Foundry actually works, hopefully these details will clear things up for you about how Cloud Foundry the OSS project works, why it works, and how you can use it.</p>
+<%
+@en =<<END
+<p><br/>Cloud Foundry is on github here: <a target="_blank" 
+href="https://github.com/cloudfoundry/vcap"><a 
+href="https://github.com/cloudfoundry/vcap" 
+target="_blank">https://github.com/cloudfoundry/vcap</a></a>
+. The VCAP repo is the meaty part or what we call the “kernel” 
+of Cloud Foundry as it is the distributed system that contains all 
+the functionality of the PaaS.. We have released a VCAP setup 
+script that will help you get an Ubuntu 10.04 system running a 
+instance of Cloud Foundry including all the components of 
+VCAP as well as a few services (mysql, redis, mongodb) up and 
+running so you can play along at home.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
 
-<p><br/>Cloud Foundry is on github here: <a target="_blank" href="https://github.com/cloudfoundry/vcap"><a href="https://github.com/cloudfoundry/vcap" target="_blank">https://github.com/cloudfoundry/vcap</a></a>. The VCAP repo is the meaty part or what we call the “kernel” of Cloud Foundry as it is the distributed system that contains all the functionality of the PaaS.. We have released a VCAP setup script that will help you get an Ubuntu 10.04 system running a instance of Cloud Foundry including all the components of VCAP as well as a few services (mysql, redis, mongodb) up and running so you can play along at home.</p>
-<p><br/>We want to build a community around Cloud Foundry, as that is what matters most for now as far as the open source project. We imagine a whole ecosystem of “userland” tools that people can create and plug into our Cloud Foundry kernel to add value and customize for any particular situation. This project is so large in scope that we had to cut a release and get community involvement at some point and we feel that the kernel is in great shape for everyone to dig in and start helping us shape the future of the “linux kernel for the cloud” ;)</p>
-<p><br/>So how do you approach building a PaaS (Platform as a Service) that is capable of running multiple languages under a common deployment and scalability idiom, that is also capable of running on any cloud or any hardware that you can run Ubuntu on? VCAP  was architected by my true rock star coworker <a target="_blank" href="http://twitter.com/derekcollison">Derek Collison</a> (this guys is the man, for realz!). The design is very nice and adheres to a main core concept of “the closer to the center of the system the dumber the code should be”. Distributed systems are fundamentally hard problems. So each component that cooperates to form the entire system should be as simple as it possibly can be and still do its job properly.</p>
-<p><br/>VCAP is broken down into 5 main components plus a message bus: The Cloud Controller, the Health Manager, the Router’s, the DEAs (Droplet Execution Agents) and a set of Services. Let’s take a closer look at each component in turn and see how they fit together to form a full platform or for the cloud.</p>
-<p><br/><a target="_blank" href="https://github.com/derekcollison/nats">NATS</a> is a very simple pub/sub messaging system written by Derek Collison (this dude knows messaging, trust me;) of TIBCO fame. NATS is the system that all the internal components communicate on. While NATS is great for this sort of system communication, you would never use NATS for application level messaging. VMware’s own RabbitMQ is awesome for app level messaging and we plan to make that available to Cloud Foundry users in the near future.</p>
-<p><br/>It should be stated here that every component in this system is horizontally scalable and self healing, meaning you can add as many copies of each component as needed in order to support the load of your cloud, and in any order. Since everything is decoupled, it doesn’t even really matter where each component lives, things could be spread across the world for all it cares. I think this is pretty cool ;)</p>
+<%
+@en =<<END
+<p><br/>We want to build a community around Cloud Foundry, 
+as that is what matters most for now as far as the open source 
+project. We imagine a whole ecosystem of “userland” tools that 
+people can create and plug into our Cloud Foundry kernel to add 
+value and customize for any particular situation. This project is 
+so large in scope that we had to cut a release and get community 
+involvement at some point and we feel that the kernel is in great 
+shape for everyone to dig in and start helping us shape the future 
+of the “linux kernel for the cloud” ;)</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
 
-<p><br/><strong>Cloud Controller:</strong><br/>The Cloud Controller is the main ‘brain’ of the system. This is an Async Rails3 app that uses ruby 1.9.2 and fibers plus eventmachine to be fully async, pretty cutting edge stuff. You can find the Cloud Controller here: <a target="_blank" href="https://github.com/cloudfoundry/vcap/tree/master/cloud_controller"><a href="https://github.com/cloudfoundry/vcap/tree/master/cloud_controller" target="_blank">https://github.com/cloudfoundry/vcap/tree/master/cloud_controller</a></a> . This component exposes the main REST interface that the <a target="_blank" href="http://rubygems.org/gems/vmc">CLI tool “vmc”</a> talks to as well as the <a target="_blank" href="http://blog.springsource.com/2011/04/13/using-cloud-foundry-from-sts/">STS plugin</a> for eclipse. If you were so inclined you could write your own client that talks to the REST endpoints exposed by the Cloud Controller to talk to VCAP in whatever way you like. But this should not be necessary as the “vmc” CLI has been written with scriptability in mind. It will return proper exit codes as well as JSON if you so desire so you can fully script it with bash or ruby, python, etc.</p>
-<p><br/>We made a decision not to tie VCAP to git even though we love git, we need to support any source code control system, yet we want the simplicity of a git push style deployment, hence the vmc push. But we also do want to have the differential deploys, meaning that we want to push diffs when you update your app, we do not want to have to push your entire app tree every time you deploy. Feeling light and fast is important to us. Our goal is to rival local development.</p>
-<p><br/>So we designed a system where we can get the best of both worlds. You as a user can use any source control system you want, when you do a <a target="_blank" href="http://blog.cloudfoundry.com/post/4737632136/what-happens-when-you-vmc-push-an-application-to-cloud">vmc push</a> or vmc update we will examine your app’s directory tree and send a “skeleton fingerprint” to the cloud controller. This is basically a fingerprint of each file in your apps tree and the shape of your directory tree. The cloud controller keeps these in a shared pool, accessible via their fingerprint plus the size for every object it ever sees. Then it returns to the client a manifest of what files it already has and what files it needs your client to send to the cloud in order to have all of your app. It is a sort of ‘dedupe’ for app code as well as framework and rubygem code and other dependency code. Then your client only sends the objects that the cloud requires in order to create a full “Droplet” (a droplet is a tarball of all your app code plus its dependencies all wrapped up into a droplet with a start and stop button) of your application.</p>
+<%
+@en =<<END
+<p><br/>So how do you approach building a PaaS (Platform as 
+a Service) that is capable of running multiple languages under a 
+common deployment and scalability idiom, that is also capable 
+of running on any cloud or any hardware that you can run 
+Ubuntu on? VCAP  was architected by my true rock star 
+coworker <a target="_blank" 
+href="http://twitter.com/derekcollison">Derek Collison</a> 
+(this guys is the man, for realz!). The design is very nice and 
+adheres to a main core concept of “the closer to the center of the 
+system the dumber the code should be”. Distributed systems are 
+fundamentally hard problems. So each component that 
+cooperates to form the entire system should be as simple as it 
+possibly can be and still do its job properly.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
 
-<p><br/>Once the Cloud Controller has all the ‘bits’ it needs to fully assemble your app, it pushes the app into the “staging pipeline”. Staging is what we call the process that assembles your app into a droplet by getting all the full objects that comprise your applications plus all of its dependencies, rewrites its config files in order to point to the proper services that you have bound to your application and then creates a tarball with some wrapper scripts called start and stop.</p>
-<p><br/><strong>DEA:</strong><br/>The Droplet Execution Agent can be found here: <a target="_blank" href="https://github.com/cloudfoundry/vcap/tree/master/dea"><a href="https://github.com/cloudfoundry/vcap/tree/master/dea" target="_blank">https://github.com/cloudfoundry/vcap/tree/master/dea</a></a> . This is an agent that is run on each node in the grid that actually runs the applications. So in any particular cloud build of Cloud Foundry, you will have more DEA nodes then any other type of node in a typical setup. Each DEA can be configured to advertise a different capacity and different runtime set,  so you do not need all your DEA nodes to be the same size or be able to run the same applications. <br/>So continuing on from our Cloud Controller story, the CC has asked for help running a droplet by broadcasting on the bus that it has a droplet that needs to be run. This droplet has some meta data attached to it like what runtime it needs as well as how much RAM it needs. Runtimes are the base component needed to run your app, like ruby-1.8.7 or ruby-1.9.2, or java6, or node. When a DEA gets one of these messages he checks to make sure he can fulfill the request and if he can he responds back to the Cloud Controller that he is willing to help.</p>
-<p><br/>The DEA does not necessarily care what language an app is written in. All it sees are droplets. A droplet is a simple wrapper around an application that takes one input, the port number to serve HTTP requests on. And it also has 2 buttons, start and stop. So the DEA treats droplets as black boxes, when it receives a new droplet to run, all it does it tells it what port to bind to and runs the start script. A droplet again is just a tarball of your application, wrapped up in a start/stop script and with all your config files like database.yml rewritten in order to bind to the proper database. Now we can’t rewrite configs for every type of service so for some services like Redis or Mongodb you will need to grab your configuration info from the environment variable ENV[‘VCAP_SERVICES’].</p>
-<p><br/>In fact there is a bunch of juicy info in the ENV of your application container. If you create a directory on your laptop and make a file in it called env.rb like this:</p>
+<%
+@en =<<END
+<p><br/>VCAP is broken down into 5 main components plus a 
+message bus: The Cloud Controller, the Health Manager, the 
+Router’s, the DEAs (Droplet Execution Agents) and a set of 
+Services. Let’s take a closer look at each component in turn and 
+see how they fit together to form a full platform or for the 
+cloud.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/><a target="_blank" 
+href="https://github.com/derekcollison/nats">NATS</a> is a 
+very simple pub/sub messaging system written by Derek 
+Collison (this dude knows messaging, trust me;) of TIBCO 
+fame. NATS is the system that all the internal components 
+communicate on. While NATS is great for this sort of system 
+communication, you would never use NATS for application 
+level messaging. VMware’s own RabbitMQ is awesome for app 
+level messaging and we plan to make that available to Cloud 
+Foundry users in the near future.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/>It should be stated here that every component in this 
+system is horizontally scalable and self healing, meaning you 
+can add as many copies of each component as needed in order to 
+support the load of your cloud, and in any order. Since 
+everything is decoupled, it doesn’t even really matter where 
+each component lives, things could be spread across the world 
+for all it cares. I think this is pretty cool ;)</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p><br/><strong>Cloud Controller:</strong><br/>The Cloud 
+Controller is the main ‘brain’ of the system. This is an Async 
+Rails3 app that uses ruby 1.9.2 and fibers plus eventmachine to 
+be fully async, pretty cutting edge stuff. You can find the Cloud 
+Controller here: <a target="_blank" 
+href="https://github.com/cloudfoundry/vcap/tree/master/cloud_c
+ontroller"><a 
+href="https://github.com/cloudfoundry/vcap/tree/master/cloud_c
+ontroller" 
+target="_blank">https://github.com/cloudfoundry/vcap/tree/mas
+ter/cloud_controller</a></a> . This component exposes the 
+main REST interface that the <a target="_blank" 
+href="http://rubygems.org/gems/vmc">CLI tool “vmc”</a> 
+talks to as well as the <a target="_blank" 
+href="http://blog.springsource.com/2011/04/13/using-cloud-
+foundry-from-sts/">STS plugin</a> for eclipse. If you were so 
+inclined you could write your own client that talks to the REST 
+endpoints exposed by the Cloud Controller to talk to VCAP in 
+whatever way you like. But this should not be necessary as the 
+“vmc” CLI has been written with scriptability in mind. It will 
+return proper exit codes as well as JSON if you so desire so you 
+can fully script it with bash or ruby, python, etc.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/>We made a decision not to tie VCAP to git even 
+though we love git, we need to support any source code control 
+system, yet we want the simplicity of a git push style 
+deployment, hence the vmc push. But we also do want to have 
+the differential deploys, meaning that we want to push diffs 
+when you update your app, we do not want to have to push your 
+entire app tree every time you deploy. Feeling light and fast is 
+important to us. Our goal is to rival local development.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/>So we designed a system where we can get the best of 
+both worlds. You as a user can use any source control system 
+you want, when you do a <a target="_blank" 
+href="http://blog.cloudfoundry.com/post/4737632136/what-
+happens-when-you-vmc-push-an-application-to-cloud">vmc 
+push</a> or vmc update we will examine your app’s directory 
+tree and send a “skeleton fingerprint” to the cloud controller. 
+This is basically a fingerprint of each file in your apps tree and 
+the shape of your directory tree. The cloud controller keeps 
+these in a shared pool, accessible via their fingerprint plus the 
+size for every object it ever sees. Then it returns to the client a 
+manifest of what files it already has and what files it needs your 
+client to send to the cloud in order to have all of your app. It is a 
+sort of ‘dedupe’ for app code as well as framework and rubygem 
+code and other dependency code. Then your client only sends 
+the objects that the cloud requires in order to create a full 
+“Droplet” (a droplet is a tarball of all your app code plus its 
+dependencies all wrapped up into a droplet with a start and stop 
+button) of your application.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p><br/>Once the Cloud Controller has all the ‘bits’ it needs to 
+fully assemble your app, it pushes the app into the “staging 
+pipeline”. Staging is what we call the process that assembles 
+your app into a droplet by getting all the full objects that 
+comprise your applications plus all of its dependencies, rewrites 
+its config files in order to point to the proper services that you 
+have bound to your application and then creates a tarball with 
+some wrapper scripts called start and stop.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/><strong>DEA:</strong><br/>The Droplet Execution 
+Agent can be found here: <a target="_blank" 
+href="https://github.com/cloudfoundry/vcap/tree/master/dea"><
+a href="https://github.com/cloudfoundry/vcap/tree/master/dea" 
+target="_blank">https://github.com/cloudfoundry/vcap/tree/mas
+ter/dea</a></a> . This is an agent that is run on each node in the 
+grid that actually runs the applications. So in any particular 
+cloud build of Cloud Foundry, you will have more DEA nodes 
+then any other type of node in a typical setup. Each DEA can be 
+configured to advertise a different capacity and different runtime 
+set,  so you do not need all your DEA nodes to be the same size 
+or be able to run the same applications. <br/>So continuing on 
+from our Cloud Controller story, the CC has asked for help 
+running a droplet by broadcasting on the bus that it has a droplet 
+that needs to be run. This droplet has some meta data attached to 
+it like what runtime it needs as well as how much RAM it needs. 
+Runtimes are the base component needed to run your app, like 
+ruby-1.8.7 or ruby-1.9.2, or java6, or node. When a DEA gets 
+one of these messages he checks to make sure he can fulfill the 
+request and if he can he responds back to the Cloud Controller 
+that he is willing to help.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/>The DEA does not necessarily care what language an 
+app is written in. All it sees are droplets. A droplet is a simple 
+wrapper around an application that takes one input, the port 
+number to serve HTTP requests on. And it also has 2 buttons, 
+start and stop. So the DEA treats droplets as black boxes, when 
+it receives a new droplet to run, all it does it tells it what port to 
+bind to and runs the start script. A droplet again is just a tarball 
+of your application, wrapped up in a start/stop script and with all 
+your config files like database.yml rewritten in order to bind to 
+the proper database. Now we can’t rewrite configs for every 
+type of service so for some services like Redis or Mongodb you 
+will need to grab your configuration info from the environment 
+variable ENV[‘VCAP_SERVICES’].</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/>In fact there is a bunch of juicy info in the ENV of 
+your application container. If you create a directory on your 
+laptop and make a file in it called env.rb like this:</p>
 <p>
 <script src="https://gist.github.com/929558.js"> </script></p>
-<p><br/>That will make a simple app that will show you what is available in your ENVIRONMENT so that you can see what to use to configure your application. If you visit this new app you will see something like this:<br/><a target="_blank" href="https://gist.github.com/raw/922647/926a26eabb127c368156d65873fd5b6e5b1fb839/gistfile1.txt">ENV output</a></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
 
-<p><br/>So the DEA’s job is almost done, once it tells the droplet what port to listen on for HTTP requests and runs it’s start script, and the app properly binds the correct port, it will broadcast on the bus the location of the new application so the Routers can know about it. If the app did not start successfully it will return log messages to the vmc client that tried to push this app telling the user why their app didn’t start (hopefully). This leads us right into what the Router has to do in the system so we will hand it over to the Router (<em>applause</em>).</p>
-<p><br/><strong>Router:</strong><br/>The Router is another eventmachine daemon that does what you would think it does, it routes requests. In a larger production setup there is a pool of Routers load balanced behind Nginx (or some other load balancer or http cache/balancer). These routers listen on the bus for notifications from the DEA’s about new apps coming online and apps going offline etc. When they get a realtime update they will update their in-memory routing table that they consult in order to properly route requests. So a request coming into the system goes through Nginx, or some other HTTP termination endpoint, which then load balances across a pool of identical Routers. One of the routers will pick up the phone to answer the request, it will start inspecting the headers of the request just enough to find the Host: header so it can pick out the name of the application this request is headed for. It will then do a basic hash lookup in the routing table to find a list of potential backends that represent this particular application. These look like:<br/>{&#8216;foo.cloudfoundry.com&#8217; =&gt; [&#8216;10.10.42.1:5897&#8217;, &#8216;10.10.42.3:61378&#8217;, etc]}<br/>So once it has looked up the list of currently running instances of the app represented by ‘foo.cloudfoundry.com’ it will pick a random backend to send the request to. So the router chooses one backend instance and forwards the request to that app instance. Responses are also inspected at the header level for injection if need be for functionality such as sticky sessions.</p>
+<%
+@en =<<END
+<p><br/>That will make a simple app that will show you what 
+is available in your ENVIRONMENT so that you can see what 
+to use to configure your application. If you visit this new app 
+you will see something like this:<br/><a target="_blank" 
+href="https://gist.github.com/raw/922647/926a26eabb127c3681
+56d65873fd5b6e5b1fb839/gistfile1.txt">ENV output</a></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
 
-<p><br/>The Router can retry another backend if the one it chose fails and there are many ways to customize this behavior if you have your own instance of Cloud Foundry setup somewhere. Routers are fairly straightforward in what they do and how they do it. They are eventmachine based and run on ruby-1.9.2 so they are fast and can handle quite a bit of traffic per instance, but like every other component in the system, they are horizontally scalable and you can add more as needed in order to scale up bigger and bigger. The system is architected in such a way that this can even be done on a running system.</p>
-<p><br/><strong>Health Manager:</strong><br/>The Health Manager is a standalone daemon that has a copy of the same models the Cloud Controller has and can currently see into the same database as the Cloud Controller.</p>
-<p><br/>This daemon has an interval where it wakes up and scans the database of the Cloud Controller to see what the state of the world “should be”, then it actually goes out into the world and inspects the real state to make sure it matches. If there are things that do not match then it will initiate messages back to the Cloud Controller to correct this. This is how we handle the loss of an application or even a DEA node per say. If an application goes down, the Health Manager will notice and will quickly remedy the situation by signaling the Cloud Controller to star a new instance. If a DEA node completely fails, the app instances running there will be redistributed back out across the grid of remaining DEA nodes.</p>
-<p><br/><strong>Services:</strong><br/>These are the services your application can choose to use and bind to in order to get data, messaging, caching and other services. This is currently where redis and mysql run and will eventually become a huge ecosystem of services offered by VMware and anyone else who wants to offer their service into our cloud. One of the cool things I will highlight is that you can share service instances between your different apps deployed onto a VCAP system. Meaning you could have a core java Spring app with a bunch of satellite sinatra apps communicating via redis or a RabbitMQ message bus.</p>
-<p><br/>Ok my fingers are tired and my shoulder hurts so I am going to call this first post done. I plan on blogging a lot more often as well as trying to help organize the community around Cloud Foundry the open source project. I hope you are as excited as I am by this project, it is basically like “rack for frameworks, clouds and services” rather then just ruby frameworks. Pluggable across the 3 different axis and well tested and well coded. This thing is very cool and I am very proud just to be a member of the team working on this thing.</p>
-<p><br/>This has been a huge team effort to get out the door and we hope it will become a huge community effort to keep driving it forward to truly make it “The Linux Kernel of Cloud Operating Systems”. Will you please join the community with me and help build this thing out to meet its true potential?</p>
+<%
+@en =<<END
+<p><br/>So the DEA’s job is almost done, once it tells the 
+droplet what port to listen on for HTTP requests and runs it’s 
+start script, and the app properly binds the correct port, it will 
+broadcast on the bus the location of the new application so the 
+Routers can know about it. If the app did not start successfully it 
+will return log messages to the vmc client that tried to push this 
+app telling the user why their app didn’t start (hopefully). This 
+leads us right into what the Router has to do in the system so we 
+will hand it over to the Router (<em>applause</em>).</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
 
-<p><a href="/">на главную</a></p>
+<%
+@en =<<END
+<p><br/><strong>Router:</strong><br/>The Router is another 
+eventmachine daemon that does what you would think it does, it 
+routes requests. In a larger production setup there is a pool of 
+Routers load balanced behind Nginx (or some other load 
+balancer or http cache/balancer). These routers listen on the bus 
+for notifications from the DEA’s about new apps coming online 
+and apps going offline etc. When they get a realtime update they 
+will update their in-memory routing table that they consult in 
+order to properly route requests. So a request coming into the 
+system goes through Nginx, or some other HTTP termination 
+endpoint, which then load balances across a pool of identical 
+Routers. One of the routers will pick up the phone to answer the 
+request, it will start inspecting the headers of the request just 
+enough to find the Host: header so it can pick out the name of 
+the application this request is headed for. It will then do a basic 
+hash lookup in the routing table to find a list of potential 
+backends that represent this particular application. These look 
+like:<br/>{&#8216;foo.cloudfoundry.com&#8217; =&gt; 
+[&#8216;10.10.42.1:5897&#8217;, 
+&#8216;10.10.42.3:61378&#8217;, etc]}<br/>So once it has 
+looked up the list of currently running instances of the app 
+represented by ‘foo.cloudfoundry.com’ it will pick a random 
+backend to send the request to. So the router chooses one 
+backend instance and forwards the request to that app instance. 
+Responses are also inspected at the header level for injection if 
+need be for functionality such as sticky sessions.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
 
-</div>
+
+<%
+@en =<<END
+<p><br/>The Router can retry another backend if the one it 
+chose fails and there are many ways to customize this behavior 
+if you have your own instance of Cloud Foundry setup 
+somewhere. Routers are fairly straightforward in what they do 
+and how they do it. They are eventmachine based and run on 
+ruby-1.9.2 so they are fast and can handle quite a bit of traffic 
+per instance, but like every other component in the system, they 
+are horizontally scalable and you can add more as needed in 
+order to scale up bigger and bigger. The system is architected in 
+such a way that this can even be done on a running system.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/><strong>Health Manager:</strong><br/>The Health 
+Manager is a standalone daemon that has a copy of the same 
+models the Cloud Controller has and can currently see into the 
+same database as the Cloud Controller.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/>This daemon has an interval where it wakes up and 
+scans the database of the Cloud Controller to see what the state 
+of the world “should be”, then it actually goes out into the world 
+and inspects the real state to make sure it matches. If there are 
+things that do not match then it will initiate messages back to the 
+Cloud Controller to correct this. This is how we handle the loss 
+of an application or even a DEA node per say. If an application 
+goes down, the Health Manager will notice and will quickly 
+remedy the situation by signaling the Cloud Controller to star a 
+new instance. If a DEA node completely fails, the app instances 
+running there will be redistributed back out across the grid of 
+remaining DEA nodes.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/><strong>Services:</strong><br/>These are the 
+services your application can choose to use and bind to in order 
+to get data, messaging, caching and other services. This is 
+currently where redis and mysql run and will eventually become 
+a huge ecosystem of services offered by VMware and anyone 
+else who wants to offer their service into our cloud. One of the 
+cool things I will highlight is that you can share service 
+instances between your different apps deployed onto a VCAP 
+system. Meaning you could have a core java Spring app with a 
+bunch of satellite sinatra apps communicating via redis or a 
+RabbitMQ message bus.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/>Ok my fingers are tired and my shoulder hurts so I am 
+going to call this first post done. I plan on blogging a lot more 
+often as well as trying to help organize the community around 
+Cloud Foundry the open source project. I hope you are as 
+excited as I am by this project, it is basically like “rack for 
+frameworks, clouds and services” rather then just ruby 
+frameworks. Pluggable across the 3 different axis and well 
+tested and well coded. This thing is very cool and I am very 
+proud just to be a member of the team working on this 
+thing.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%
+@en =<<END
+<p><br/>This has been a huge team effort to get out the door 
+and we hope it will become a huge community effort to keep 
+driving it forward to truly make it “The Linux Kernel of Cloud 
+Operating Systems”. Will you please join the community with 
+me and help build this thing out to meet its true potential?</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+<%= a_end %>

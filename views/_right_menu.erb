@@ -3,7 +3,9 @@
   <div class="clr"></div>
   <ul class="sb_menu">
     <% @articles.each do |article| %>
-      <li><a href="<%= article[:url] %>"><%= article[:title] %></a></li>
+      <li>
+        <a <%= 'style="font-weight: bold"' if article[:id] == @a_id %>href="<%= article[:url] %>"><%= article[:title] %></a>
+      </li>
     <% end %>
   </ul>
 </div>
