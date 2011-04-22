@@ -35,18 +35,18 @@
         <%= yield %>
       </div>
       <div class="sidebar">
-        <%= erb :'_right_menu', :layout=>false %>
+        <%= erb :'layout_partials/_right_menu', :layout=>false %>
 
-        <%= erb :'_links', :layout=>false %>
+        <%= erb :'layout_partials/_links', :layout=>false %>
       </div>
       <div class="clr"></div>
     </div>
   </div>
   <div class="fbg">
-    <%= erb :'_subinfo', :layout=>false %>
+    <%= erb :'layout_partials/_subinfo', :layout=>false %>
   </div>
   <div class="footer">
-    <%= erb :'_footer', :layout=>false %>
+    <%= erb :'layout_partials/_footer', :layout=>false %>
   </div>
 </div>
 
