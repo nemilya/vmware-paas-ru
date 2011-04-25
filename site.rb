@@ -1,13 +1,13 @@
 require 'rubygems'
 require 'sinatra'
 
-$:.unshift( File.dirname(__FILE__))
+#$:.unshift( File.dirname(__FILE__))
 
-set :public, File.join( File.dirname(__FILE__), '../public' )
-set :views, File.join( File.dirname(__FILE__), '../views' )
+set :public, File.join( File.dirname(__FILE__), './public' )
+set :views, File.join( File.dirname(__FILE__), './views' )
 
-require 'before' # init for @articles
-require 'helpers'
+require 'app/before' # init for @articles
+require 'app/helpers'
             
 get '/' do
   erb :index
