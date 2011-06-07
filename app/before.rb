@@ -2,6 +2,19 @@ before do
   @preview_mode = params[:preview]
 
   @articles = []
+
+  @articles << {
+    :id => 'how-cloud-foundry-works-when-a-new-application-is',
+    :title => 'Что происходит когда приложение разворачивается в CloudFoundry',
+    :url => '/how-cloud-foundry-works-when-a-new-application-is',
+    :date_text => '5 мая 2011',
+    :org_title => 'How Cloud Foundry works when a new Application is Deployed',
+    :org_url =>   'http://blog.cloudfoundry.com/post/5223861703/how-cloud-foundry-works-when-a-new-application-is',
+    :author_name => 'blog.cloudfoundry',
+    :author_url =>  'http://blog.cloudfoundry.com',
+    :intro_text => 'Previously in this blog post, we covered how the client side does a vmc push to deploy an application onto the Cloud Foundry.com service.  In this post we are going to look at how things work from Cloud Foundry’s perspective.  This post is a detailed walk through of the inner workings of deploying an application on Cloud Foundry.'
+  }
+  
   @articles << {
     :id => 'cloud-foundry-open-paas-deep-dive',
     :title => 'Архитектура Cloud Foundry',

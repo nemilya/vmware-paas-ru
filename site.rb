@@ -13,6 +13,13 @@ get '/' do
   erb :index
 end
 
+get '/how-cloud-foundry-works-when-a-new-application-is' do
+  @a_id = 'how-cloud-foundry-works-when-a-new-application-is'
+  @article = get_article
+  erb "articles/#{@a_id}".to_sym
+end
+
+
 get '/cloud-foundry-open-paas-deep-dive' do
   @a_id = 'cloud-foundry-open-paas-deep-dive'
   @article = get_article

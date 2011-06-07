@@ -1,0 +1,1207 @@
+<%= a_start %>
+
+<%
+@en =<<END
+<p><span class="s1">Previously in </span><span class="s2"><a 
+target="_blank" 
+href="http://blog.cloudfoundry.com/post/4737632136/what-happens-
+when-you-vmc-push-an-application-to-cloud">this</a></span><span 
+class="s1"><span><a target="_blank" 
+href="http://blog.cloudfoundry.com/post/4737632136/what-happens-
+when-you-vmc-push-an-application-to-cloud"> blog post</a>, we 
+covered how the client side does a <span>vmc</span> push to 
+deploy an application onto the </span></span><span 
+class="s2">Cloud Foundry.com</span><span class="s1"> service.  In 
+this post we are going to look at how things work from Cloud 
+Foundry’s perspective.  This post is a detailed walk through of 
+the inner workings of deploying an application on Cloud 
+Foundry.</span></p>
+END
+@ru =<<END
+В предыдущей статье, мы рассказали что происходит на клиентской стороне
+когда выполняется команда vmc push для разворачивания приложения на CloudFoundry.
+В этой статье мы посмотрим на то же самое изнутри - с точки зрения CloudFoundry.
+Мы детально посмотрим шаги, которые происходит когда приложение разворачивается 
+в CloudFoundery.
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p2"><img 
+src="http://media.tumblr.com/tumblr_lkdy6qek7i1qhaq9m.png"/></p>
+<p class="p1"><span class="s1"><span>Step 1&#160;: Cloud Foundry 
+is targeted by the <span>vmc</span> client.  The request is done 
+by passing a GET request to </span><span class="s2"><a 
+href="http://api.cloudfoundry.com/info" target="_blank"><a 
+href="http://api.cloudfoundry.com/info" 
+target="_blank">http://api.cloudfoundry.com/info</a></a></span></
+span></p>
+END
+@ru =<<END
+<p class="p2"><img 
+src="http://media.tumblr.com/tumblr_lkdy6qek7i1qhaq9m.png"/></p>
+<p class="p1"><span class="s1"><span>Шаг 1&#160;: Сервер с Cloud Foundry 
+выбирается как целевой с помощью клиента <span>vmc</span>.
+Запрос выполняется с помощью GET запроса на адрес 
+<a href="http://api.cloudfoundry.com/info" target="_blank">http://api.cloudfoundry.com/info</a>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 2&#160;: The request 
+passes through one of the Load <span>Balancers</span> where it is 
+passed to the Routers</span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 2&#160;: Запрос
+проходит через Load Balancers (один из) где далее он направляется на Роуты
+(Routers)</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p3"><span class="s3">Step 3&#160;: The request passes 
+from a specific Router to the Cloud Controller, the Cloud 
+Controller then returns the following JSON document </span><span 
+class="s1"><span>{&#8220;name&#8221;:&#8221;<span>vcap</span>&#82
+21;,&#8221;build&#8221;:2222,&#8221;support&#8221;:&#8221;</span>
+<a href="mailto:support@cloudfoundry.com" target="_blank"><span 
+class="s4">support@cloudfoundry.com</span></a><span>&#8221;,&#822
+1;version&#8221;:&#8221;0.999&#8221;,&#8221;description&#8221;:&#
+8221;<span>VMware&#8217;s</span> Cloud Application 
+Platform&#8221;} .</span></span></p>
+END
+@ru =<<END
+<p class="p3"><span class="s3">Шаг 3&#160;: Запрос через
+Роутер попадает к Контроллеру Облака (Cloud Controller), 
+который в возвращает строку - данные в формате JSON:
+<pre>
+{"name":"vcap","build":2222,"support":"support@cloudfoundry.com","version":"0.999","description":"VMware's Cloud Application Platform"}
+</pre>
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p3"><span class="s1"> </span><span>This document passes 
+back through the Router and Load <span>Balancer</span></span></p>
+END
+@ru =<<END
+<p class="p3">
+Этот JSON документ возвращается обратно через Роутер (Router) и Балансер 
+(Load Balancer)
+</p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 4&#160;: The JSON 
+document (the response) is returned to the <span>vmc</span> 
+client, after validating the JSON document, it returns 
+“Successfully targeted to [</span><a 
+href="http://api.cloudfoundry.com" target="_blank"><span 
+class="s2"><a href="http://api.cloudfoundry.com" 
+target="_blank">http://api.cloudfoundry.com</a></span></a>]”</spa
+n></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 4&#160;: JSON-документ
+(ответ) возвращает vmc клиенту, после проверки на валидность JSON 
+документа - vmc отображает:
+<br> “Successfully targeted to [http://api.cloudfoundry.com]”
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdy799znU1qhaq9m.png"/></spa
+n></p>
+<p class="p1">After targeting Cloud Foundry, the client needs to 
+authenticate before it can issue instructions to the Cloud 
+Controller.</p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img src="http://media.tumblr.com/tumblr_lkdy799znU1qhaq9m.png"/>
+</span></p>
+<p class="p1">После "таргетинга" на Cloud Foundry сервер, 
+клиенту необходимо авторизоваться перед тем как он может передавать команды 
+Контроллеру Облага (Cloud Controller)
+</p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 1&#160;: 
+<span>vmc</span> <span>login</span> 
+<span>api</span>.<span>cloudfoundry</span>.com on the client side 
+sends an authentication request which passes through the Load 
+<span>Balancers</span></span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 1&#160;: 
+<span>vmc</span> <span>login</span> 
+<span>api</span>.<span>cloudfoundry</span>.com <br>
+- эта команда посылает запрос на авторизацию, который попадает на Балансер 
+(Load Balancers)
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 2&#160;: The request gets 
+passed through the appropriate Routers on its way to the Cloud 
+Controller</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1">Шаг 2&#160;: Далее запрос проходит
+через один из Роутов (Routers) и попадает к Контроллеру Облака 
+(Cloud Controller)
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 3&#160;: The Cloud 
+Controller takes the <span>login</span> request and looks at the 
+credent</span><span>ials (email and password) and if the 
+validate, it creates a Security Token.  The Security Token has a 
+configurable lease which defaults ~2 Weeks (this can be 
+shortened/lengthened).  Once the Security Token is Generated it 
+is sent in the response, which is passed back through the Router 
+and then Load <span>Balancer</span>.</span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 3&#160;: 
+Контроллер Облака (Cloud Controller)
+ получает запрос "<span>login</span>" 
+ и смотрит на логин (емейл) и пароль - данные для авторизации,
+ если данные верные - он создаёт Секретный Токен (Security Token).
+Токен имеен настраиваемый срок актуальности - по умолчанию 2 недели (что может быть 
+сокращено/увеличено). Как только Токен сгенерировали - он посылается в ответ,
+который проходит через Роутер, и затем через Балансер.
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 4&#160;: The Security 
+Token is then passed from the Load <span>Balancer</span> to the 
+<span>vmc</span> client where it is cached and sent as an 
+authorization header with each new request.  Once the Security 
+Token is received, this is when the response “Successfully logged 
+into [</span><a href="http://api.cloudfoundry.com" 
+target="_blank"><span class="s2"><a 
+href="http://api.cloudfoundry.com" 
+target="_blank">http://api.cloudfoundry.com</a></span></a>]” is 
+displayed.</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 4&#160;: 
+Секретный Токен через Балансер передаётся клиенту - vmc,
+где он кэшируется и посылается в заголовке авторизации (authorization header)
+с каждым новым запросом.
+Как только Токен получается, на экране отображается сообщение:
+<br> “Successfully logged into [http://api.cloudfoundry.com]”
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdygu7xt21qhaq9m.png"/></spa
+n></p>
+<p class="p1"><span>The previous two, <span>vmc</span> actions 
+dealt with Targeting and Authenticating to Cloud Foundry, which 
+are basic commands which have been in use by many systems for a 
+long time.  The <span>vmc</span> push command is one of the most 
+powerful and complicated commands to handle on the server side of 
+Cloud Foundry.  This is due to the number of components and 
+messages that have to be brought together to successfully deploy 
+an application.</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img src="http://media.tumblr.com/tumblr_lkdygu7xt21qhaq9m.png"/></span></p>
+<p class="p1"><span>
+Два предыдущих действия vmc - Таргетинг и Авторизация в CloudFoundry -
+две базовые команды которые существуют во многих системах.
+Следующая команда - push - является одной из самых мощных и сложных для
+обработки на стороне сервера CloudFoundry. Это объясняется тем
+что есть целый набор компонетов и сообщений, которые необходимо объединить 
+вместе для успешного разворачивания приложения.
+(This is due to the number of components and 
+messages that have to be brought together to successfully deploy 
+an application. ??)
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span><span>Metadata</span> included in the below 
+steps encompasses the name, <span>url</span>, instances, 
+services, and more, however no application bits are 
+sent.</span></p>
+END
+@ru =<<END
+<p class="p1"><span><span>Метаданные</span> о которых говорится в следующих
+шагах - включают в себя название, урл, количество инстанцев (экземпляров), сервисы,
+и ещё дополнительную информацию, но не содержит ни бита самого разворачиваемого приложения.
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 1&#160;: 
+<span>vmc</span> push sends the Security Token along with the 
+<span>metadata</span> (that was described in the <span>vmc</span> 
+client side blog post) to the Load 
+<span>Balancers</span></span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 1&#160;: 
+Команда <span>vmc</span> push 
+посылает Секретный Токент совместно с метаданными (о том как формируются эти 
+метаданные было описано в статье посвящённой vmc push с точки зрения клиента),
+информация приходит на Балансер.
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 2&#160;: The Load 
+<span>Balancers</span> move the request (the 
+<span>metadata</span> and the token) through to the 
+Routers</span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 2&#160;: 
+Балансер (Load Balancers) направляет запрос (Метаданные с Токеном)
+на Роутер (Routers)</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 3&#160;: The Routers pass the 
+request down to the Cloud Controller which authenticates the 
+token before proceeding</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1">Шаг 3&#160;: Роутер (Routers)
+ направляет запрос на Контроллер Облака (Cloud Controller)
+ который проверяет Токент перед дальнейше обработкой.
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdylbV9DQ1qhaq9m.png"/></spa
+n></p>
+<p class="p1"><span class="s1">This diagram is a follow-on to the 
+previous (which is why the numbers start at 4).</span> </p>
+<p class="p1"><span class="s1">Step 4&#160;: After the Cloud 
+Controller validates the token it opens the Manifest and compares 
+the Fingerprints to the Fingerprint Index (Which is embedded into 
+a directory structure).</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdylbV9DQ1qhaq9m.png"/></span></p>
+<p class="p1"><span class="s1">Эта диаграма описывает шаги следующие за предыдущим.
+(начиная с Шага 4).</span> </p>
+<p class="p1"><span class="s1">Шаг 4&#160;: 
+После того как Контроллер Облака проверил валидность Токена - он открывает
+Манифест (Manifest) и сравнивает Fingerprints (хэш-суммы по каждому файлу),
+с Fingerprint Index (хэш-суммы файлов, что загружены в CloudFoundry).
+(замечание - вероятно здесь рассматривается случай update, т.к. при push - мы 
+должны понимать, что все файлы - новые)
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 5&#160;: Once all 
+Fingerprints have been compared, any Fingerprints (these are the 
+SHA-1&#160;<span>Crypto</span> Hashes against the files that the 
+<span>vmc</span> client wants to send) that are not matched are 
+put into a Differences Manifest.</span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Step 5&#160;: Как только все
+Fingerprints были сравнены с базовыми, каждый Fingerprints 
+которые не совпал - попадают в Differences Manifest.
+
+(Fingerprints - представляется собой хэш-сумму (SHA-1 Crypto Hashes)
+каждого файла, который клиент (vmc) хочет переслать на сервер)
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 6&#160;: The Differences 
+(Diff’ed) Manifest is then sent back through the 
+Router</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1">Шаг 6&#160;: The Differences 
+(Diff’ed) Manifest посылается обратно, через Роутер</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 7&#160;: The Router 
+passes the Diff’ed Manifest to the Load 
+<span>Balancer</span></span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 7&#160;: Роутер передаёт ответ Балансеру
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 8&#160;: The Load 
+<span>Balancer</span> passes the Diff’ed Manifest back to the 
+<span>vmc</span> client</span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 8&#160;: Балансер
+в свою очередь передаёт Манифест со списком тех файлов, что необходимо загрузит - 
+обратно vmc клиенту.
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Once the <span>vmc</span> 
+client receives the Diff’ed Manifest it then takes the files that 
+were not found in the Fingerprint Index and creates a compressed 
+(zip) file with them.  Once the compressed file has been created 
+it is called the Application Package.</span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Как только vmc получает 
+Diff’ed Manifest он берёт все эти файлы (которые соотв. не были найдены
+в Fingerprint Index на серверной стороне) и создаёт zip архив с этими
+файлами. Как только архив создан - он называется Application Package.
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdymx02U21qhaq9m.png"/></span></p>
+<p class="p1">In this phase the Application Package will become a 
+Gold App Package</p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdymx02U21qhaq9m.png"/></span></p>
+<p class="p1">На этом этапе - Application Package превратится в Gold App Package
+</p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p2"><span>Step 1&#160;: The Diff’ed Manifest (the same 
+as was received from the Cloud Controller) and Application 
+Package are sent along with the Security Token (All of which are 
+in JSON format, either JSON Docs or Blobs) to the Load 
+<span>Balancer</span></span></p>
+END
+@ru =<<END
+<p class="p2"><span>Шаг 1&#160;: Diff’ed Manifest (тот же самый что клиент
+получил от Контроллера Облака) и Application 
+Package посылаются совместно, плюс Секретный Токен (всё это в JSON формате)
+посылается Балансеру.
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p2"><span>Step 2&#160;: The Load <span>Balancer</span> 
+passes the Manifest, Package, and Token to the Router</span></p>
+END
+@ru =<<END
+<p class="p2"><span>Шаг 2&#160;: Балансер (Load Balancer)
+передаёт Манифест, Пакет и Токен - Роутеру (Router)</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 3&#160;: The Router passes 
+the Manifest, Package, and Token to the Cloud 
+Controller</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1">Шаг 3&#160;: 
+Роутер передаёт Манифест, Пакет и Токен - Контроллеру Облака 
+(Cloud Controller)</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p2">Step 4&#160;: The Cloud Controller validates the 
+Security Token and Examines the Manifest</p>
+END
+@ru =<<END
+<p class="p2">Step 4&#160;: Контроллер Облака (Cloud Controller)
+проверяет валидность Секретного Токена и проверяет Манифест
+</p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p2"><span>Step 5&#160;: The Cloud Controller 
+<span>uncompresses</span> the Package and begins to add the 
+missing files that it already had Fingerprints for.</span></p>
+END
+@ru =<<END
+<p class="p2"><span>Шаг 5&#160;: Контроллер Облака
+распаковывает Пакет и начинает добавлять отсутствующие файлы,
+для которых уже указаны Fingerprints.
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 6&#160;: Once the Gold App 
+Package has been created, it is re-compressed, time-stamped, 
+fingerprinted via SHA1, and saved to a shared 
+directory</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1">Шаг 6&#160;: 
+Как только Gold App Package был создан, этот пакет упаковывается,
+делает отметка времени (time-stamped), ставится подпись через SHA1
+и сохраняется в общей папке (shared directory)</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdyox7nZ01qhaq9m.png"/></span></p>
+<p class="p1"><span>Step 7&#160;: Once the Gold App Package has 
+been successfully stored in the shared directory it is 
+“finished”.  The Cloud Controller now has all of the information 
+from the client it needs regarding <span>metadata</span> 
+describing the application and the application bits.</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdyox7nZ01qhaq9m.png"/></span></p>
+<p class="p1"><span>Шаг 7&#160;: 
+Как только Gold App Package (пакет) был успешно сохранён в общей папке - на этом 
+процесс получения информации от клиента - завершается.
+Контроллер Облака - получил всю информацию от клиента (она указана в Метаданны)
+описывающее приложение, и так же само приложение.
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p2"><span>Step 8&#160;: The Cloud Controller releases 
+the <span>vmc</span> client call, and uploading is considered 
+complete.</span></p>
+END
+@ru =<<END
+<p class="p2"><span>Шаг 8&#160;: 
+Контролер Облака отвечает vmc клиента, что загрузка приложения завершена.
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 9&#160;: The Router 
+having received the message from the Cloud Controller sends it to 
+the Load <span>Balancer</span></span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 9&#160;: 
+Роутер получает сообщение от Контроллера Облака и посылает его Балансеру.
+</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 10&#160;: The Load 
+<span>Balancer</span> sends the message to the <span>vmc</span> 
+client where it updates the terminal with “Push Status: OK” 
+(Assuming that it was successful)</span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 10&#160;: Балансер
+посылает сообщение vmc клиенту, который обновляет окно терминала
+и выводит сообщение “Push Status: OK” 
+(при условии успешного завершения)</span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdyq0r2mV1qhaq9m.png"/></span></p>
+<p class="p1"><span>Once the Push Phase has completed, the 
+<span>vmc</span> client will ask the Cloud Controller to start 
+the application, by changing its state, and then begins a polling 
+process to find out the current status of the Application.  The 
+state transitions from </span><strong>Stopped</strong> to 
+<strong>Started</strong><span> and waits for the staging to be 
+completed.</span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdyq0r2mV1qhaq9m.png"/></span></p>
+<p class="p1"><span>
+Как только PUSH фаза завершилась, vmc клиент 
+передаёт Контроллеру Облака команду на запуск приложения,
+посредством смены его состояния, и начинает процесс опроса (polling process) -
+опрос статуса Приложения. А именно ожидание перехода статуса
+приложения с <strong>Stopped</strong> (остановлено) в <strong>Started</strong> (стартовано).
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span>It is important to understand that this 
+process is independent of what is happening inside Cloud 
+Foundry.  The only thing that happens between the vmc client and 
+Cloud Foundry is whether the Cloud Controller responds with 
+Staging Successful, Application Started, an error, or still 
+working.  This polling process waiting for the application status 
+to be considered Started occurs asynchronously from the 
+<span>vmc</span> client to the Cloud Controller.</span></p>
+END
+@ru =<<END
+<p class="p1"><span>
+Важно понять, что этот процесс независим от того что происходит внутри
+Контроллера Облака. Единственное что происходит между vmc клиентом
+и Контроллером Облака - это ответы Контроллера Облака - 
+Staging Successful (успешное размещение), Application Started (Приложение стартовано),
+и ошибка, или всё ещё работает.
+
+Процесс ожидания vmc клиента на запуск Приложения - происходит асинхронно от 
+Контроллера Облака.
+</span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 1&#160;: The 
+<span>vmc</span> client requests a status on if the Application 
+has been Staged, that request is sent to a Load 
+<span>Balancer</span></span></span></p>
+END
+@ru =<<END
+<p class="p1"><span class="s1"><span>Шаг 1&#160;: The 
+<span>vmc</span> client requests a status on if the Application 
+has been Staged, that request is sent to a Load 
+<span>Balancer</span></span></span></p>
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 2&#160;: The Load 
+<span>Balancer</span> passes the request to a 
+Router</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 3&#160;: The Router 
+passes the request to a Cloud Controller, which checks the status 
+of the Application to see if it has completed Staging.  In this 
+case the Application has not completed Staging, but it also has 
+not <span>errored</span> out.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 4&#160;: The Cloud Controller 
+sends a response that it is waiting, which is passed to a 
+Router</span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 5&#160;: The Router 
+passes the response to a Load 
+<span>Balancer</span></span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 6&#160;: The Load 
+<span>Balancer</span> passes the response back the the 
+<span>vmc</span> client, where it waits (~1 second before polling 
+again for the status) </span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdyqynruj1qhaq9m.png"/></spa
+n></p>
+<p class="p1"><span class="s1"><span>Now that <span>vmc</span> 
+client polling has been described, we can look at what is 
+occurring for Staging to complete successfully.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 1&#160;: The Cloud 
+Controller tells the <span>Stager</span> that it has a Gold App 
+Package that needs to be Staged</span></span> </p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 2&#160;: The Framework 
+specific <span>Stager</span> makes a copy of the Gold App Package 
+and <span>uncompresses</span> it.  It then looks at the 
+<span>Metadata</span> for the Gold App Package and decides what 
+the necessary frameworks, <span>runtimes</span>, and services are 
+needed.  The decision is based on what the Application 
+<span>Startup</span> Requirements, Application Shutdown 
+Requirements, and Application Service Requirements are.  For 
+example, if the application is a Ruby on Rails Application it 
+will need the Ruby <span>runtime</span>, the Rails Framework, and 
+most likely MySQL.  Once all of the Requirements are known, it 
+gathers all of the necessary files and creates the Staged 
+Application Package.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 3&#160;: The Staged 
+Application Package is first compressed, then written into an 
+indexed and shared directory, where it is 
+<span>versioned</span>.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 4&#160;: The 
+<span>Stager</span> sends a notice that the Application has been 
+Staged (because the Staged Application Package has been 
+successfully created)</span></span> </p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 5&#160;: The Cloud 
+Controller updates the status that this Application is now 
+Staged, this will be picked up by the <span>vmc</span> client the 
+next time it performs a poll.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdyrzauGN1qhaq9m.png"/></spa
+n></p>
+<p class="p1"><span class="s1"><span>If the <span>vmc</span> push 
+contained a &#8212;no-start, then these next few steps would be 
+skipped under the assumption that other things (such as bringing 
+online other services of some type) need to be done before the 
+Application can be Started.  Otherwise, the default behavior is 
+to attempt to Start the application which is what 
+follows.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 1&#160;: The Cloud Controller 
+broadcasts that it has a Staged App Package that it needs 
+started.  </span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 2&#160;: The Cloud 
+Controller broadcast goes out to the DEA pool, where the 
+<span>DEAs</span> ALL receive the request.  Internally each DEA 
+looks to see if it meets the necessary requirements to respond to 
+the Cloud Controller that it can Start that type of Application.  
+Some of the requirements include: <span>Runtime</span>, Memory 
+Needed, Current Memory Available, CPU Available. 
+ </span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 3&#160;: Assuming a DEA 
+can fulfill all of these requirements, it will respond that it 
+can Start this type of Application.  The first DEA to respond 
+that it can Start this type of Application will be the DEA that 
+gets assigned the Application.  <span>DEAs</span> may pause in 
+responding based on memory pressure, or whether they are already 
+running the application, providing for better placement of new 
+applications.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 4&#160;: The Cloud 
+Controller sends a message containing the Staged App Package 
+information, including the Fingerprint and a URI pointing to 
+where to get the Staged  App Package if it doesn&#8217;t already 
+have a copy locally.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 5&#160;: If the DEA 
+doesn&#8217;t have a copy already, it will look several places 
+and if all else fails, it will use the URI to retrieve 
+it.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdytdcAqT1qhaq9m.png"/></spa
+n></p>
+<p class="p1"><span class="s1"><span>Following the preceding 
+Diagram, the DEA has gotten a copy of the Staged App 
+Package.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 6&#160;: The DEA 
+extracts the Staged App Package and brings up the Application 
+Environment, along with the necessary Services required.  The DEA 
+only understands the Start and Stop requirements, all of the work 
+to make the application behave correctly has been done by the 
+Cloud Controllers, <span>Stagers</span>, and is contained within 
+the Staged App Package.  Once the DEA believes that the 
+application has fully started, it will broadcast a message to 
+this effect. </span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 7&#160;: Until now we 
+haven’t mentioned the <span>PubSub</span> component, this is an 
+intermediary component that sits in between all of the 
+components.  It is a lightweight message bus allowing components 
+to publish/send/broadcast messages, while allowing other 
+components to subscribe/listen/receive messages.  This is being 
+called out because in the case of Step 6, there are 2 subscribers 
+to the message that the Application has 
+started.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 8&#160;: The Router receives 
+the message that the Application has started and updates its 
+routing tables to begin routing traffic to the Application when 
+requests are sent to it.</span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 9&#160;: The Health Manager 
+(which subscribes to most messages being passed around the 
+system) receives the message and adds this information to it 
+current database of activities that it has seen.</span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 10&#160;: When the next 
+<span>vmc</span> poll event occurs, the Cloud Controller asks the 
+DEA pool for the status of the instances, and it asks the Health 
+Manager for its health report on the application including all 
+instances. The Cloud Controller sends the response that it has 
+started to the <span>vmc</span> client. If the DEA had reported 
+that the application had crashed or was starting and crashing 
+(flapping) then the <span>vmc</span> client would pull certain 
+files (<span>crashlogs</span>) from the crashed instance and 
+would send the diagnostic output to the 
+console.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Once the <span>vmc</span> 
+client has gotten the poll response from the Cloud Controller 
+that the Application has successfully started, it returns 
+“Starting Application: OK”.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdyu5oR2i1qhaq9m.png"/></spa
+n></p>
+<p class="p1"><span class="s1">Now that there is a running 
+Application on Cloud Foundry, we can now see what happens when a 
+user goes to access the application (via. web 
+browser).</span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 1&#160;: The browser makes a 
+request to <a href="http://hello.cloudfoundry.com" 
+target="_blank"><span 
+class="s2"><span>http://hello.<span>cloudfoundry</span>.com</span
+></span></a><span> which is routed by DNS to the Load 
+<span>Balancers</span> in Cloud Foundry.</span></span></p>
+<p class="p1"><span class="s1"><span>Step 2&#160;: The Load 
+<span>Balancers</span> pass the request to the 
+Routers.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 3&#160;: A Router directs the 
+request to the Application running on a DEA.</span></p>
+<p class="p1"><span class="s1">Step 4&#160;: The Application 
+receives and processes the request to create a 
+response.</span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 5&#160;: While receiving 
+requests, DEA is also sending out heartbeats to the Health 
+Manager letting it know that the Application is still working 
+correctly.</span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><br/></span></p>
+<p class="p1"><span class="s1"><img 
+src="http://media.tumblr.com/tumblr_lkdyuhZsEu1qhaq9m.png"/></spa
+n></p>
+<p class="p1"><span class="s1">Step 6&#160;: Once the response 
+has generated by the Application it is ready to be 
+sent.</span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1">Step 7&#160;: The response is the 
+sent to a Router</span></p>
+<p class="p1"><span class="s1"><span>Step 8&#160;: The Router 
+sends the response to a Load 
+<span>Balancer</span></span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><span class="s1"><span>Step 9&#160;: The Load 
+<span>Balancer</span> sends the response back to the client (web 
+browser) that made the request.</span></span></p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%
+@en =<<END
+<p class="p1"><strong>In Summary</strong></p>
+<p class="p1">Understanding the flow from both the client side 
+and the service side of Cloud Foundry is important as application 
+bits aren&#8217;t simply being &#8220;pushed&#8221; into a black 
+box.  Cloud Foundry operates in a manner that is designed to 
+horizontally scale at all layers, while making it easy for the 
+developer to deploy and update their code to the platform. When 
+application bits are pushed they are done in the most efficient 
+manner possible, while maintaining easy and fast portability 
+through each step of the process.  The vmc client operates 
+asynchronously and polls the Cloud Controller, it does not block 
+Cloud Foundry in any way.  Once an application has been started, 
+it is continuously monitored by the Health Manager.  The vmc 
+polls the Cloud Controller, finds that the application has be 
+started and updates the console.  The developer can now access 
+their application from the url they created when they pushed 
+their application.</p>
+END
+@ru =<<END
+END
+%>
+<%= show %>
+
+
+<%= a_end %>
